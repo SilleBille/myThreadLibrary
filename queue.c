@@ -44,6 +44,13 @@ _MyThread * dequeue (_queue *q) {
 	return ret->thread;
 }
 
+int isEmpty(_queue *q) {
+	if(q->start == NULL && q->end == NULL)
+		return 1;
+	else
+		return 0;
+}
+
 void printQueue(_queue *q) {
 	_ThreadNode *temp = q->start;
 	while(temp != NULL) {

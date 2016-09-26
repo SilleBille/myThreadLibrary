@@ -41,8 +41,8 @@ void MyThreadInit(void (*start_funct)(void *), void *args) {
 	enqueue(readyQueue, mainThread);
 
 	/* Testing purpose */
-	printf("Queue in INit: ");
-	printQueue(readyQueue);
+//	printf("Queue in INit: ");
+//	printQueue(readyQueue);
 	/* Testing */
 
 	currentThread = dequeue(readyQueue);
@@ -58,7 +58,7 @@ MyThread MyThreadCreate(void (*start_funct)(void *), void *args) {
 	// Store the context to the newly created thread
 	getcontext(&(thread->tContext));
 
-	thread->tContext.uc_link = &mainThread->tContext; // Might need to be Changed!
+	thread->tContext.uc_link = &mainThread->tContext; // Might need to be Changed to &mainThread->tContext
 
 	thread->tContext.uc_stack.ss_sp = malloc(STACK_SIZE);
 	thread->tContext.uc_stack.ss_size = STACK_SIZE;
@@ -72,9 +72,9 @@ MyThread MyThreadCreate(void (*start_funct)(void *), void *args) {
 
 	enqueue(readyQueue, thread);
 
-	printf("Queue elements: ");
+	/*printf("Queue elements: ");
 	printQueue(readyQueue);
-	printf("=========\n");
+	printf("=========\n");*/
 	return thread;
 }
 
@@ -92,6 +92,25 @@ void MyThreadYield(void) {
 			// update the current Thread
 			currentThread = nextThread;
 			swapcontext(&mainThread->tContext, &currentThread->tContext);
+
+			// main thread will come back here after executing all its children threads
+
+			if(!isEmpty(readyQueue)) {
+				// Oh man! You were a bad thread! "You must clean everything before you go!"
+
+				if(currentThread != NULL) {
+					printf("Freeing thread id inside non-mepty ready queue: %d\n", currentThread->threadID);
+					free(currentThread);
+				}
+				currentThread = mainThread;
+				MyThreadYield();
+				// Now the ready queue is empty.
+				if(currentThread != NULL) {
+					printf("Current id: %d\n", currentThread->threadID);
+					free(currentThread);
+					currentThread = NULL;
+				}
+			}
 		} else {
 			// update the current Thread
 			currentThread = nextThread;
@@ -101,12 +120,15 @@ void MyThreadYield(void) {
 			swapcontext(&prevThread->tContext, &currentThread->tContext);
 
 		}
+
 	}
 }
 void MyThreadExit(void) {
 	// remove the current thread
-	printf("Freeing thread ID: %d\n", currentThread->threadID);
-	free(currentThread);
+	if(currentThread != NULL) {
+		printf("Freeing thread ID in Exit: %d\n", currentThread->threadID);
+		free(currentThread);
+	}
 	_MyThread *nextThread = dequeue(readyQueue);
 
 	if(nextThread != NULL) {
@@ -115,6 +137,7 @@ void MyThreadExit(void) {
 	} else {
 		// No more threads to run. So, go back to main thread
 		currentThread = mainThread;
+		currentThread = NULL;
 	}
 	setcontext(&currentThread->tContext);
 
