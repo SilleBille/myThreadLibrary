@@ -11,20 +11,23 @@
 #ifndef MYDATASTRUCTURES_H_
 #define MYDATASTRUCTURES_H_
 
-typedef struct threadBody {
+struct threadBody {
 	ucontext_t tContext;
 	int threadID;
-}_MyThread;
+};
 
-typedef struct threadQueueNode {
-	_MyThread *thread;
+struct threadQueueNode {
+	struct threadBody thread;
 	struct threadQueueNode *next;
-}_ThreadNode;
+};
 
-typedef struct queue {
-	_ThreadNode *start, *end;
-}_queue;
+struct queue {
+	struct threadQueueNode *start, *end;
+};
 
+typedef struct threadBody _MyThread;
+typedef struct queue _queue;
+typedef struct threadQueueNode _ThreadNode;
 
 /* Queue Operations */
 void enqueue(_queue *q, _MyThread *t);

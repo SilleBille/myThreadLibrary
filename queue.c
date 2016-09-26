@@ -15,9 +15,9 @@
 // http://stackoverflow.com/questions/18473983/single-queue-and-multiple-queue-using-same-program-not-work
 void enqueue(_queue *q, _MyThread *t) {
 	_ThreadNode *addNode = (_ThreadNode *) malloc(sizeof(_ThreadNode));
-	addNode->thread = (_MyThread *) malloc(sizeof(_MyThread));
+	// addNode->thread = (_MyThread *) malloc(sizeof(_MyThread));
 
-	addNode->thread =t;
+	addNode->thread = *t;
 	addNode->next = NULL;
 
 	if(q->start == NULL) {
@@ -43,7 +43,7 @@ _MyThread dequeue (_queue *q) {
 }
 
 void printQueue(_queue *q) {
-	_ThreadNode *temp = *q->start;
+	_ThreadNode *temp = q->start;
 	while(temp->next != NULL) {
 		printf("Queue element: %d\n", temp->thread.threadID);
 	}
