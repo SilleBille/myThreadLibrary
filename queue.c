@@ -6,6 +6,7 @@
  */
 #include "mydatastructures.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 // REFERENCE:
 // Basic queue using linked list:
@@ -15,9 +16,9 @@
 // http://stackoverflow.com/questions/18473983/single-queue-and-multiple-queue-using-same-program-not-work
 void enqueue(_queue *q, _MyThread *t) {
 	_ThreadNode *addNode = (_ThreadNode *) malloc(sizeof(_ThreadNode));
-	// addNode->thread = (_MyThread *) malloc(sizeof(_MyThread));
+	//addNode->thread = (_MyThread *) malloc(sizeof(_MyThread));
 
-	addNode->thread = *t;
+	addNode->thread =t;
 	addNode->next = NULL;
 
 	if(q->start == NULL) {
@@ -31,9 +32,8 @@ void enqueue(_queue *q, _MyThread *t) {
 	}
 }
 
-_MyThread dequeue (_queue *q) {
-	// queue is empty
-
+_MyThread * dequeue (_queue *q) {
+	// Hold the thread that needs to be returned
 	_ThreadNode *ret = q->start;
 
 	// Move the start to next element
@@ -45,7 +45,7 @@ _MyThread dequeue (_queue *q) {
 void printQueue(_queue *q) {
 	_ThreadNode *temp = q->start;
 	while(temp->next != NULL) {
-		printf("Queue element: %d\n", temp->thread.threadID);
+		printf("Queue element: %d\n", temp->thread->threadID);
 	}
 }
 
