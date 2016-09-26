@@ -35,7 +35,9 @@ void enqueue(_queue *q, _MyThread *t) {
 _MyThread * dequeue (_queue *q) {
 	// Hold the thread that needs to be returned
 	_ThreadNode *ret = q->start;
-
+	if(ret == NULL) {
+		return NULL;
+	}
 	// Move the start to next element
 	q->start = q->start->next;
 
