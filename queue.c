@@ -44,8 +44,9 @@ _MyThread * dequeue (_queue *q) {
 
 void printQueue(_queue *q) {
 	_ThreadNode *temp = q->start;
-	while(temp->next != NULL) {
+	while(temp != NULL) {
 		printf("Queue element: %d\n", temp->thread->threadID);
+		temp = temp->next;
 	}
 }
 
