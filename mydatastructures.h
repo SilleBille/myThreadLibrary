@@ -49,4 +49,9 @@ int isEmpty(_queue *q);
 
 int isParentPresent(_queue *q, _MyThread *threadToFind);
 
+int isChild(_queue *q, _MyThread *childToFind);
+
+int isPresent(_queue *q, _MyThread *childToFind);
+
+
 #endif /* MYDATASTRUCTURES_H_ */

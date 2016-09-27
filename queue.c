@@ -58,7 +58,6 @@ int isEmpty(_queue *q) {
 
 void addChildren(_queue *childList, _MyThread *child) {
 	_ThreadNode *addChildNode = (_ThreadNode *) malloc(sizeof(_ThreadNode));
-	printf("Adding child id: %d\n", child->threadID);
 	addChildNode->thread = child;
 	addChildNode->next = NULL;
 
@@ -129,15 +128,41 @@ int isParentPresent(_queue *q, _MyThread *threadToFind) {
 		if (temp->thread == threadToFind) {
 			return TRUE;
 		}
+		temp = temp->next;
 	}
 	return FALSE;
 }
 
+int isChild(_queue *q, _MyThread *childToFind) {
+	_ThreadNode *temp = q->start;
+	while (temp != NULL) {
+		if (temp->thread == childToFind) {
+			return TRUE;
+		}
+		temp = temp->next;
+	}
+	return FALSE;
+}
+
+int isPresent(_queue *q, _MyThread *thread) {
+	_ThreadNode *temp = q->start;
+	while (temp != NULL) {
+		if (temp->thread == thread) {
+			return TRUE;
+		}
+		temp = temp->next;
+	}
+	return FALSE;
+}
+
+// Testing purpose
+
 void printQueue(_queue *q) {
 	_ThreadNode *temp = q->start;
 	while (temp != NULL) {
-		printf("Queue element: %d\n", temp->thread->threadID);
+		printf("  %d  ", temp->thread->threadID);
 		temp = temp->next;
 	}
+	printf("\n");
 }
 
