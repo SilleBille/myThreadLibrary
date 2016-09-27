@@ -10,6 +10,10 @@
 #define TRUE 1
 #define FALSE 0
 
+#define S_READY 100
+#define S_RUNNING 101
+#define S_FINISHED 102
+
 #ifndef MYDATASTRUCTURES_H_
 #define MYDATASTRUCTURES_H_
 
@@ -19,6 +23,7 @@ typedef struct threadBody {
 	int numberOfChildrenWaitedUpon;
 	struct queue *children;
 	struct threadBody *parent;
+	int state;
 }_MyThread;
 
 typedef struct threadQueueNode {
@@ -39,9 +44,9 @@ _MyThread * dequeue(_queue *q);
 /* Singly linked list operations */
 void addChildren(_queue *parent, _MyThread *child);
 
-void removeChild(_queue *childList, _MyThread *childToBeRemoved);
+/*void removeChild(_queue *childList, _MyThread *childToBeRemoved);
 
-void moveChildren(_queue *newParent, _queue *oldParent, _MyThread *currentThread);
+void moveChildren(_queue *newParent, _queue *oldParent, _MyThread *currentThread);*/
 
 void removeFromBlockedQueue(_queue *queue, _MyThread *threadToBeRemoved);
 
@@ -52,6 +57,8 @@ int isParentPresent(_queue *q, _MyThread *threadToFind);
 int isChild(_queue *q, _MyThread *childToFind);
 
 int isPresent(_queue *q, _MyThread *childToFind);
+
+int countNoOfNodes(_queue *q);
 
 
 #endif /* MYDATASTRUCTURES_H_ */

@@ -70,7 +70,7 @@ void addChildren(_queue *childList, _MyThread *child) {
 	}
 }
 
-void removeChild(_queue *childList, _MyThread *childToBeRemoved) {
+/*void removeChild(_queue *childList, _MyThread *childToBeRemoved) {
 
 	printf("Going to remove %d for the parent %d\n", childToBeRemoved->threadID,
 			childToBeRemoved->parent->threadID);
@@ -89,7 +89,7 @@ void removeChild(_queue *childList, _MyThread *childToBeRemoved) {
 		// free(temp);
 	}
 	printf("Removed %d\n", childToBeRemoved->threadID);
-}
+}*/
 
 void removeFromBlockedQueue(_queue *queue, _MyThread *threadToBeRemoved) {
 
@@ -109,7 +109,7 @@ void removeFromBlockedQueue(_queue *queue, _MyThread *threadToBeRemoved) {
 	}
 }
 
-void moveChildren(_queue *newParent, _queue *oldParentsChild,
+/*void moveChildren(_queue *newParent, _queue *oldParentsChild,
 		_MyThread *currentThread) {
 
 	if (oldParentsChild != NULL) {
@@ -120,7 +120,7 @@ void moveChildren(_queue *newParent, _queue *oldParentsChild,
 			temp = temp->next;
 		}
 	}
-}
+}*/
 
 int isParentPresent(_queue *q, _MyThread *threadToFind) {
 	_ThreadNode *temp = q->start;
@@ -153,6 +153,16 @@ int isPresent(_queue *q, _MyThread *thread) {
 		temp = temp->next;
 	}
 	return FALSE;
+}
+
+int countNoOfNodes(_queue *q) {
+	int count=0;
+	_ThreadNode *temp = q->start;
+	while(temp != NULL) {
+		count++;
+		temp = temp->next;
+	}
+	return count;
 }
 
 // Testing purpose
