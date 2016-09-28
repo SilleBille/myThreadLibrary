@@ -36,20 +36,16 @@ void MyThreadInit(void (*start_funct)(void *), void *args) {
 	mainThread->parent = NULL;
 	mainThread->children = (_queue *) malloc(sizeof(_queue));
 	makecontext(&(mainThread->tContext), (void (*)(void)) start_funct, 1, args);
-	enqueue(readyQueue, mainThread);
 
 	/* Testing purpose */
 //	printf("Queue in INit: ");
 //	printQueue(readyQueue);
 	/* Testing */
 
-	currentThread = dequeue(readyQueue);
-
-	getcontext(&backupMainContext);
-	if(currentThread != NULL) {
-		// From here the main thread takes control!
-		setcontext(&currentThread->tContext);
-	}
+	currentThread = mainThread;
+	// From here the main thread takes control!
+	swapcontext(&backupMainContext, &currentThread->tContext);
+	// printf("HERERJKSERJKSJFKJSKFJKLFJLJFSDKJFLKSD-----------\n");
 }
 
 /* Create Child Threads */
@@ -107,50 +103,51 @@ void MyThreadYield(void) {
 		// Have a copy of the current running thread since we are going to switch to next thread from queue
 		_MyThread *prevThread = currentThread;
 
-		if (currentThread == mainThread) {
-			// update the current Thread
-			currentThread = nextThread;
-			swapcontext(&mainThread->tContext, &currentThread->tContext);
-			printf("here ah?!\n");
-			// main thread will come back here after executing all its children threads
-			// FOR EXTRA CREDITS
-			//MyThreadExit();
-			/*if (!isEmpty(readyQueue)) {
-			 // Oh man! You were a bad thread! "You must clean everything before you go!"
+		/*if (currentThread == mainThread) {
+		 // update the current Thread
+		 currentThread = nextThread;
+		 swapcontext(&mainThread->tContext, &currentThread->tContext);
+		 printf("here ah?!\n");*/
 
-			 if (currentThread != NULL) {
-			 printf(
-			 "Freeing thread id inside non-mepty ready queue: %d\n",
-			 currentThread->threadID);
-			 if (currentThread->parent != NULL)
-			 removeChild(currentThread->parent->children,
-			 currentThread);
-			 free(currentThread);
-			 }
-			 currentThread = mainThread;
-			 MyThreadYield();
-			 // Now the ready queue is empty.
-			 if (currentThread != NULL) {
-			 printf("Current id: %d\n", currentThread->threadID);
-			 free(currentThread);
-			 currentThread = NULL;
-			 }
-			 }*/
-		} else {
-			// update the current Thread
-			currentThread = nextThread;
+		// main thread will come back here after executing all its children threads
+		// FOR EXTRA CREDITS
+		//MyThreadExit();
+		/*if (!isEmpty(readyQueue)) {
+		 // Oh man! You were a bad thread! "You must clean everything before you go!"
 
-			// Put the current running thread to the back of the ready queue
-			enqueue(readyQueue, prevThread);
-			swapcontext(&prevThread->tContext, &currentThread->tContext);
-		}
+		 if (currentThread != NULL) {
+		 printf(
+		 "Freeing thread id inside non-mepty ready queue: %d\n",
+		 currentThread->threadID);
+		 if (currentThread->parent != NULL)
+		 removeChild(currentThread->parent->children,
+		 currentThread);
+		 free(currentThread);
+		 }
+		 currentThread = mainThread;
+		 MyThreadYield();
+		 // Now the ready queue is empty.
+		 if (currentThread != NULL) {
+		 printf("Current id: %d\n", currentThread->threadID);
+		 free(currentThread);
+		 currentThread = NULL;
+		 }
+		 }*/
+		/*} else {*/
+		// update the current Thread
+		currentThread = nextThread;
+
+		// Put the current running thread to the back of the ready queue
+		enqueue(readyQueue, prevThread);
+		swapcontext(&prevThread->tContext, &currentThread->tContext);
+		//	}
 
 	}
 }
 
 /* Exit the thread correctly */
 void MyThreadExit(void) {
-	if (currentThread->parent != NULL) {
+	/*if (currentThread->parent != NULL) {
 		// printf("Not the Main thraed\n");
 		// moveChildren(currentThread->parent->children, currentThread->children,
 		// 		currentThread);
@@ -164,43 +161,61 @@ void MyThreadExit(void) {
 				enqueue(readyQueue, currentThread->parent);
 			}
 		}
-	}
+	}*/
 
 //
 //	if (currentThread == mainThread) {
-		if (!isEmpty(readyQueue)) {
-			// Ready Queue is not Empty still!
-			_MyThread *nextThread = dequeue(readyQueue);
-			if(currentThread != mainThread) {
-				// free(currentThread);
-				currentThread->state = S_FINISHED;
-
-				currentThread = nextThread;
-				// printf("transferring control to : %d\n", currentThread->threadID);
-				setcontext(&currentThread->tContext);
-			} else {
-				currentThread = nextThread;
-				swapcontext(&mainThread->tContext, &currentThread->tContext);
-//				if(currentThread != nextThread)
-//					currentThread =
-				if(!isEmpty(readyQueue)) {
-					MyThreadExit();
-				}
-				else {
-					currentThread = NULL;
-					setcontext(&backupMainContext);
-				}
-			}
-		} else {
-			if(currentThread != NULL) {
-				// No more threads to run. So, go back to main thread
-				// free(currentThread);
-				currentThread->state = S_FINISHED;
-
-				currentThread = mainThread;
-				setcontext(&mainThread->tContext);
+	currentThread->state = S_FINISHED;
+	if(currentThread->parent != NULL) {
+		// printf("Curren thread parent ID: %d\n", currentThread->parent->threadID);
+		if (isParentPresent(blockedQueue, currentThread->parent)) {
+			// printf("Parent %d is present in blocked queue\n", currentThread->parent->threadID);
+			currentThread->parent->numberOfChildrenWaitedUpon -= 1;
+			if (currentThread->parent->numberOfChildrenWaitedUpon == 0) {
+				removeFromBlockedQueue(blockedQueue, currentThread->parent);
+				enqueue(readyQueue, currentThread->parent);
 			}
 		}
+	} else
+	{
+		//printf("Curren thread has no PARENT!\n");
+	}
+	if (!isEmpty(readyQueue)) {
+		// Ready Queue is not Empty still!
+		_MyThread *nextThread = dequeue(readyQueue);
+		_MyThread *prevThread = currentThread;
+		currentThread = nextThread;
+		swapcontext(&prevThread->tContext, &currentThread->tContext);
+		/*if (currentThread != mainThread) {
+			// free(currentThread);
+			currentThread->state = S_FINISHED;
+
+			currentThread = nextThread;
+			// printf("transferring control to : %d\n", currentThread->threadID);
+			setcontext(&currentThread->tContext);
+		} else {
+			currentThread = nextThread;
+			swapcontext(&mainThread->tContext, &currentThread->tContext);
+
+			if (!isEmpty(readyQueue)) {
+				MyThreadExit();
+			} else {
+				currentThread = NULL;
+				setcontext(&backupMainContext);
+			}
+		}*/
+	} else {
+		/*if (currentThread != NULL) {
+			// No more threads to run. So, go back to main thread
+			// free(currentThread);
+			currentThread->state = S_FINISHED;
+
+			currentThread = mainThread;
+			currentThread->state = S_FINISHED;
+			setcontext(&backupMainContext);
+		}*/
+		setcontext(&backupMainContext);
+	}
 //	}
 
 	/*// remove the current thread
@@ -226,16 +241,17 @@ void MyThreadExit(void) {
 
 /* Join with a child thread*/
 int MyThreadJoin(MyThread thread) {
-	_MyThread *threadToJoin = (_MyThread *)thread;
-	if(!isChild(currentThread->children, threadToJoin)) {
+	_MyThread *threadToJoin = (_MyThread *) thread;
+	if (!isChild(currentThread->children, threadToJoin)) {
 		return -1;
 	} else {
 		// It is a child!
 
 		// 1. check whether threadToJoin is in Ready Queue or in Blocked Queue!
-		if(isPresent(readyQueue, threadToJoin) || isPresent(blockedQueue, threadToJoin)) {
-			if(threadToJoin->state != S_FINISHED) {
-				printf("Child is present in ready or blocked queue\n");
+		if (isPresent(readyQueue, threadToJoin)
+				|| isPresent(blockedQueue, threadToJoin)) {
+			if (threadToJoin->state != S_FINISHED) {
+				// printf("Child is present in ready or blocked queue\n");
 				enqueue(blockedQueue, currentThread);
 				currentThread->numberOfChildrenWaitedUpon += 1;
 
@@ -251,15 +267,33 @@ int MyThreadJoin(MyThread thread) {
 
 /* Join all children Threads */
 void MyThreadJoinAll(void) {
-	if(isEmpty(currentThread->children)) {
+	if (isEmpty(currentThread->children)) {
 		return;
 	} else {
 		// Children are present
+		int numberOfThreadsToBeWaited = 0;
+		_ThreadNode *t = currentThread->children->start;
+		while (t != NULL) {
+			if (isPresent(readyQueue, t->thread)
+					|| isPresent(blockedQueue, t->thread)) {
+				if (t->thread->state != S_FINISHED)
+					numberOfThreadsToBeWaited++;
+			}
+			t = t->next;
+		}
+		/*printf("Number of children to completed: %d\n",
+				numberOfThreadsToBeWaited);*/
+		currentThread->numberOfChildrenWaitedUpon = numberOfThreadsToBeWaited;
 
+		enqueue(blockedQueue, currentThread);
+		_MyThread *prevThread = currentThread;
+		_MyThread *nextThread = dequeue(readyQueue);
+		currentThread = nextThread;
+		swapcontext(&prevThread->tContext, &currentThread->tContext);
 	}
 }
 
 /*void printThreadId(MyThread thread) {
-	_MyThread *printThread = (_MyThread *)thread;
-	printf("Thread id: %d\n", printThread->threadID);
-}*/
+ _MyThread *printThread = (_MyThread *)thread;
+ printf("Thread id: %d\n", printThread->threadID);
+ }*/

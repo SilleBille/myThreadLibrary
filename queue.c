@@ -93,7 +93,7 @@ void addChildren(_queue *childList, _MyThread *child) {
 
 void removeFromBlockedQueue(_queue *queue, _MyThread *threadToBeRemoved) {
 
-	printf("Removing %d from blocked queue \n", threadToBeRemoved->threadID);
+	// printf("Removing %d from blocked queue \n", threadToBeRemoved->threadID);
 	_ThreadNode *temp = queue->start;
 	_ThreadNode *prev = queue->start;
 	while (temp != NULL && temp->thread != threadToBeRemoved) {
@@ -102,7 +102,7 @@ void removeFromBlockedQueue(_queue *queue, _MyThread *threadToBeRemoved) {
 	}
 	// if it is the first child
 	if (temp != NULL && temp == queue->start) {
-		printf("Removing the head node\n");
+		// printf("Removing the head node\n");
 		queue->start = queue->start->next;
 	} else if (temp != NULL) {
 		prev->next = temp->next;
