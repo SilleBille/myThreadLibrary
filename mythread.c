@@ -159,15 +159,15 @@ void MyThreadExit(void) {
 			if(currentThread->parent->childToWaitUpon == currentThread) {
 					currentThread->parent->childToWaitUpon = NULL;
 					currentThread->parent->numberOfChildrenWaitedUpon = 0;
-					printf("Parent %d is present in blocked queue and moving back to ready queue\n", currentThread->parent->threadID);
+					//printf("Parent %d is present in blocked queue and moving back to ready queue\n", currentThread->parent->threadID);
 					removeFromBlockedQueue(blockedQueue, currentThread->parent);
 					enqueue(readyQueue, currentThread->parent);
 
 			} else if(currentThread->parent->childToWaitUpon == NULL){
-				printf("Parent %d is present in blocked queue\n", currentThread->parent->threadID);
+				// printf("Parent %d is present in blocked queue\n", currentThread->parent->threadID);
 				currentThread->parent->numberOfChildrenWaitedUpon -= 1;
 				if (currentThread->parent->numberOfChildrenWaitedUpon == 0) {
-					printf("Moving to ready queue\n");
+					// printf("Moving to ready queue\n");
 					removeFromBlockedQueue(blockedQueue, currentThread->parent);
 					enqueue(readyQueue, currentThread->parent);
 				}

@@ -21,9 +21,10 @@
  */
 MySemaphore MySemaphoreInit(int initialValue) {
 	_MySemaPhore *sem = (_MySemaPhore *) malloc(sizeof(_MySemaPhore));
-
-	sem->value = initialValue;
-	sem->semWaitQueue = (_queue *) malloc(sizeof(_queue));
+	if(sem != NULL) {
+		sem->value = initialValue;
+		sem->semWaitQueue = (_queue *) malloc(sizeof(_queue));
+	}
 
 	return sem;
 }
@@ -34,12 +35,14 @@ MySemaphore MySemaphoreInit(int initialValue) {
  */
 void MySemaphoreSignal(MySemaphore sem) {
 	_MySemaPhore *s = (_MySemaPhore *)sem;
-	s->value++;
-	if(s->value <= 0) {
-		// There is one or more threads waiting in the wait queue
-		// printf("There are one or more threads in sem queue! %d\n", s->value);
-		_MyThread *threadToReadyQueue = dequeue(s->semWaitQueue);
-		enqueue(readyQueue, threadToReadyQueue);
+	if(s != NULL) {
+		s->value++;
+		if(s->value <= 0) {
+			// There is one or more threads waiting in the wait queue
+			// printf("There are one or more threads in sem queue! %d\n", s->value);
+			_MyThread *threadToReadyQueue = dequeue(s->semWaitQueue);
+			enqueue(readyQueue, threadToReadyQueue);
+		}
 	}
 
 }
@@ -48,20 +51,22 @@ void MySemaphoreSignal(MySemaphore sem) {
 /* Wait on semaphore sem. */
 void MySemaphoreWait(MySemaphore sem) {
 	_MySemaPhore *s = (_MySemaPhore *)sem;
-	s->value--;
-	if(s->value <0) {
-		// All are occupied. Move to wait queue of sem
-		// printf("Going to wait! Token: %d\n", s->value);
-		enqueue(s->semWaitQueue, currentThread);
-		_MyThread *nextThread = dequeue(readyQueue);
-		if(nextThread != NULL) {
-			_MyThread *prevThread = currentThread;
-			currentThread = nextThread;
-			swapcontext(&prevThread->tContext, &currentThread->tContext);
-		} else {
-			_MyThread *prevThread = currentThread;
-			currentThread = mainThread;
-			swapcontext(&prevThread->tContext, &currentThread->tContext);
+	if(s != NULL) {
+		s->value--;
+		if(s->value <0) {
+			// All are occupied. Move to wait queue of sem
+			// printf("Going to wait! Token: %d\n", s->value);
+			enqueue(s->semWaitQueue, currentThread);
+			_MyThread *nextThread = dequeue(readyQueue);
+			if(nextThread != NULL) {
+				_MyThread *prevThread = currentThread;
+				currentThread = nextThread;
+				swapcontext(&prevThread->tContext, &currentThread->tContext);
+			} else {
+				_MyThread *prevThread = currentThread;
+				currentThread = mainThread;
+				swapcontext(&prevThread->tContext, &currentThread->tContext);
+			}
 		}
 	}
 }
@@ -75,6 +80,8 @@ int MySemaphoreDestroy(MySemaphore sem) {
 	if(!isEmpty(s->semWaitQueue))
 		return -1;
 	else {
+		free(s);
+		s = NULL;
 		return 0;
 	}
 }
