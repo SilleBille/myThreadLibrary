@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -c
+CFLAGS = -c -Wall
 # REFERENCE: http://stackoverflow.com/questions/2734719/how-to-compile-a-static-library-in-linux
 
 all: library
