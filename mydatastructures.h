@@ -35,6 +35,11 @@ typedef struct queue {
 	_ThreadNode *start, *end;
 }_queue;
 
+typedef struct semaphore {
+	int value;
+	_queue *semWaitQueue;
+} _MySemaPhore;
+
 
 /* Queue Operations */
 void enqueue(_queue *q, _MyThread *t);
@@ -59,6 +64,10 @@ int isChild(_queue *q, _MyThread *childToFind);
 int isPresent(_queue *q, _MyThread *childToFind);
 
 int countNoOfNodes(_queue *q);
+
+_MyThread *currentThread, *mainThread;
+
+_queue *readyQueue;
 
 
 #endif /* MYDATASTRUCTURES_H_ */
