@@ -58,5 +58,7 @@ int MySemaphoreDestroy(MySemaphore sem);
 // Create and run the "main" thread
 void MyThreadInit(void(*start_funct)(void *), void *args);
 
+
+
 #endif /* MYTHREAD_H */
 /*........................ end of mythread.h ................................*/
