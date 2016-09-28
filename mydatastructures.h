@@ -24,6 +24,7 @@ typedef struct threadBody {
 	struct queue *children;
 	struct threadBody *parent;
 	int state;
+	struct threadBody *childToWaitUpon;
 }_MyThread;
 
 typedef struct threadQueueNode {
